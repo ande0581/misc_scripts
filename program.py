@@ -17,23 +17,12 @@ def main():
         laptop_model = parse_html(html)
         laptop_dict[key] = laptop_dict.get(key, laptop_model)
 
-    print('Macbook Pro 13:')
-    for item in laptop_dict['macpro_13']:
-        for spec in item:
-            print(spec)
-        print()
-
-    print('Macbook Pro 15:')
-    for item in laptop_dict['macpro_15']:
-        for spec in item:
-            print(spec)
-        print()
-
-    print('Mac Air 11:')
-    for item in laptop_dict['macair_11']:
-        for spec in item:
-            print(spec)
-        print()
+    for model, device in laptop_dict.items():
+        print('{}: '.format(model))
+        for item in laptop_dict[model]:
+            for spec in item:
+                print(spec)
+            print()
 
 
 def get_html(url):
