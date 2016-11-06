@@ -4,29 +4,33 @@
 import requests
 import bs4
 import send_email
+import collections
+
+MacBook = collections.namedtuple('MacBook',
+                                 'title, released, screen, memory, storage, camera, graphics, cost, discount, percent')
 
 
 def main():
-
-    laptop_dict = {}
     email_body = ''
 
     urls = {
         'macpro_13': 'http://www.apple.com/shop/browse/home/specialdeals/mac/macbook_pro/13',
         'macpro_15': 'http://www.apple.com/shop/browse/home/specialdeals/mac/macbook_pro/15',
+        'macair_11': 'http://www.apple.com/shop/browse/home/specialdeals/mac/macbook_air/11'
     }
+
+    all_laptops = []
 
     for key, url in urls.items():
         html = get_html(url)
         laptop_model = parse_html(html)
-        laptop_dict[key] = laptop_dict.get(key, laptop_model)
+        all_laptops.append(laptop_model)
 
-    for model, device in laptop_dict.items():
-        email_body = email_body + model + ':\n'
-        for item in laptop_dict[model]:
-            for spec in item:
-                email_body = email_body + spec + '\n'
-            email_body += '\n'
+    for laptop in all_laptops:
+        if laptop:
+            for spec in laptop:
+                email_body += '\n'.join(spec)  # join the tuple adding a new line between the values
+                email_body += '\n\n'
 
     # send an email
     send_email.create_send_email(email_body)
@@ -46,11 +50,12 @@ def parse_html(html):
     savings_rows = soup.find(id='primary').find_all(class_='savings')
 
     for spec, price, saving in zip(spec_rows, price_rows, savings_rows):
-        cleaned_spec = clean_text(spec.get_text())
-        cleaned_spec.append(clean_text(price.get_text())[0])  # Append price to device specs
-        cleaned_spec.append(clean_text(saving.get_text())[0])  # Append dollars saved to specs
-        cleaned_spec.append(clean_text(saving.get_text())[1])  # Append percentage saved to device specs
-        laptops.append(cleaned_spec)
+        title, released, screen, memory, storage, camera, graphics = clean_text(spec.get_text())
+        cost, = clean_text(price.get_text())  # cost has trailing comma so it unpacks the first value only
+        discount, percent = clean_text(saving.get_text())
+        laptop = MacBook(title=title, released=released, screen=screen, memory=memory, storage=storage, camera=camera,
+                         graphics=graphics, cost=cost, discount=discount, percent=percent)
+        laptops.append(laptop)
 
     return laptops
 
