@@ -1,3 +1,6 @@
+#! /home/janderson/PycharmProjects/refurbquery/env/bin/python
+# 0 6-22 * * * /home/janderson/PycharmProjects/refurbquery/env/bin/python /home/janderson/PycharmProjects/refurbquery/program.py
+
 import requests
 import bs4
 import send_email
