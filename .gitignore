@@ -89,3 +89,4 @@ ENV/
 .ropeproject
 /env/
 /.idea/
+/.idea/vcs.xml

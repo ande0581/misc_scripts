@@ -3,36 +3,46 @@ import bs4
 
 
 def main():
-    html = get_html()
-    laptops = parse_html(html)
-    for laptop in laptops:
-        for detail in laptop:
-            print(detail)
+
+    laptop_dict = {}
+
+    urls = {
+        'macpro_13': 'http://www.apple.com/shop/browse/home/specialdeals/mac/macbook_pro/13',
+        'macpro_15': 'http://www.apple.com/shop/browse/home/specialdeals/mac/macbook_pro/15',
+        'macair_11': 'http://www.apple.com/shop/browse/home/specialdeals/mac/macbook_air/11'
+    }
+
+    for key, url in urls.items():
+        html = get_html(url)
+        laptop_model = parse_html(html)
+        laptop_dict[key] = laptop_dict.get(key, laptop_model)
+
+    print('Macbook Pro 13:')
+    for item in laptop_dict['macpro_13']:
+        for spec in item:
+            print(spec)
         print()
-    send_email()
+
+    print('Macbook Pro 15:')
+    for item in laptop_dict['macpro_15']:
+        for spec in item:
+            print(spec)
+        print()
+
+    print('Mac Air 11:')
+    for item in laptop_dict['macair_11']:
+        for spec in item:
+            print(spec)
+        print()
 
 
-def get_html():
-    #url = 'http://www.apple.com/shop/browse/home/specialdeals/mac/macbook_pro/15'
-    url = 'http://www.apple.com/shop/browse/home/specialdeals/mac/macbook_air/11'
+def get_html(url):
     response = requests.get(url)
     return response.text
 
 
 def parse_html(html):
     laptops = []
-    # cityCss = 'div#location h1'
-    # weatherConditionCss = 'div#curCond span.wx-value'
-    # weatherTempCss = 'div#curTemp span.wx-data span.wx-value'
-    # weatherScaleCss = 'div#curTemp span.wx-data span.wx-unit'
-
-    """
-    soup = bs4.BeautifulSoup(html, 'html.parser')
-    location = soup.find(id='location').find('h1').get_text()
-    condition = soup.find(id='curCond').find(class_='wx-value').get_text()
-    temp = soup.find(id='curTemp').find(class_='wx-value').get_text()
-    scale = soup.find(id='curTemp').find(class_='wx-unit').get_text()
-    """
 
     soup = bs4.BeautifulSoup(html, 'html.parser')
     spec_rows = soup.find(id='primary').find_all(class_='specs')
@@ -54,10 +64,6 @@ def clean_text(s):
         if k:
             cleaned_list.append(k)
     return cleaned_list
-
-
-def send_email():
-    pass
 
 
 if __name__ == '__main__':
