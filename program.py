@@ -1,5 +1,6 @@
 #! /home/janderson/PycharmProjects/refurbquery/env/bin/python
-# 0 6-22 * * * /home/janderson/PycharmProjects/refurbquery/env/bin/python /home/janderson/PycharmProjects/refurbquery/program.py
+# 0 5-22 * * * /home/janderson/PycharmProjects/refurbquery/env/bin/python /home/janderson/PycharmProjects/refurbquery/program.py
+from distutils import dirname
 
 import requests
 import bs4
@@ -16,7 +17,7 @@ def main():
     urls = {
         'macpro_13': 'http://www.apple.com/shop/browse/home/specialdeals/mac/macbook_pro/13',
         'macpro_15': 'http://www.apple.com/shop/browse/home/specialdeals/mac/macbook_pro/15',
-        'macair_11': 'http://www.apple.com/shop/browse/home/specialdeals/mac/macbook_air/11'
+        #'macair_11': 'http://www.apple.com/shop/browse/home/specialdeals/mac/macbook_air/11'
     }
 
     all_laptops = []
@@ -55,7 +56,8 @@ def parse_html(html):
         discount, percent = clean_text(saving.get_text())
         laptop = MacBook(title=title, released=released, screen=screen, memory=memory, storage=storage, camera=camera,
                          graphics=graphics, cost=cost, discount=discount, percent=percent)
-        laptops.append(laptop)
+        if '16GB' in laptop.memory:
+            laptops.append(laptop)
 
     return laptops
 
