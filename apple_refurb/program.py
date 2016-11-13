@@ -1,12 +1,10 @@
 #! /home/janderson/PycharmProjects/misc_scripts/env/bin/python
-# 0 5-22 * * * /home/janderson/PycharmProjects/misc_scripts/env/bin/python /home/janderson/PycharmProjects/misc/apple_refurb/program.py
+# 0 5-22 * * * /home/janderson/PycharmProjects/misc_scripts/env/bin/python /home/janderson/PycharmProjects/misc_scripts/apple_refurb/program.py
 
 import collections
-
 import bs4
 import requests
-
-from apple_refurb import send_email
+import send_email
 
 MacBook = collections.namedtuple('MacBook',
                                  'title, released, screen, memory, storage, camera, graphics, cost, discount, percent')
