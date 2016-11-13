@@ -13,7 +13,8 @@ def main():
 
     filename = get_data_file()
     data = load_file(filename)
-    apply_payment(data)
+    total_payments, total_interest, num_payments = apply_payment(data)
+    print_summary(total_interest=total_interest, total_payments=total_payments, num_payments=num_payments)
 
 
 def get_data_file():
@@ -37,7 +38,7 @@ def load_file(filename):
 
 
 def apply_payment(data):
-    principle = 74724.34
+    balance = 74724.34
     total_interest = []
     total_payments = []
     previous_date = datetime.date(2016, 10, 28)  # setting the start date based on current billing cycle
@@ -45,27 +46,31 @@ def apply_payment(data):
 
     for payment in data:
         days = days_in_billing_cycle(previous_date, payment.date)
-        accrued_interest = daily_interest(principle, days)
-        principle -= payment.amount - accrued_interest
+        accrued_interest = daily_interest(balance, days)
+        principle_applied = payment.amount - accrued_interest
+        balance -= payment.amount - accrued_interest
         total_interest.append(accrued_interest)
         total_payments.append(payment.amount)
-        print('{}, Payment: {}, Interest: {:.2f}, Principle: {:.2f}, Balance: ${:.2f}'.
-              format(payment.date, payment.amount, accrued_interest, payment.amount - accrued_interest, principle))
-
-        if principle <= payment.amount:
-            final_payment = principle
-            final_date = calculate_next_month(payment.date)
-
-            print('{}, Payment: {:.2f}, Interest: {:.2f}, Principle: {:.2f}, Balance: ${:.2f}'.
-                   format(final_date, final_payment, accrued_interest, final_payment - accrued_interest, principle - final_payment))
-
-            print()
-            print('Total Payments: ${:.2f}'.format(sum(total_payments)))
-            print('Total Interest Paid: ${:.2f}'.format(sum(total_interest)))
-            print(count)
-            break
+        print_payment_details(date=payment.date, payment=payment.amount, interest=accrued_interest,
+                              principle=principle_applied, balance=balance)
         count += 1
         previous_date = payment.date
+
+        # Calculate the final payment details
+        if balance <= payment.amount:
+            final_payment = balance
+            final_date = calculate_next_month(payment.date)
+            days = days_in_billing_cycle(payment.date, final_date)
+            accrued_interest = daily_interest(balance, days)
+            principle_applied = final_payment - accrued_interest
+            final_balance = balance - final_payment
+            total_interest.append(accrued_interest)
+            total_payments.append(final_payment)
+
+            print_payment_details(date=final_date, payment=final_payment, interest=accrued_interest,
+                                  principle=principle_applied, balance=final_balance)
+
+            return sum(total_payments), sum(total_interest), count
 
 
 def daily_interest(principle, days):
@@ -86,6 +91,18 @@ def calculate_next_month(current_date):
         return datetime.date(current_date.year+1, 1, current_date.day)
     else:
         return datetime.date(current_date.year, current_date.month+1, current_date.day)
+
+
+def print_payment_details(date, payment, interest, principle, balance):
+    print('{}, Payment: {:.2f}, Interest: {:.2f}, Principle: {:.2f}, Balance: ${:.2f}'.
+          format(date, payment, interest, principle, balance))
+
+
+def print_summary(total_payments, total_interest, num_payments):
+    print()
+    print('Total Payments: ${:.2f}'.format(total_payments))
+    print('Total Interest Paid: ${:.2f}'.format(total_interest))
+    print('Total Number of Payments: {}'.format(num_payments))
 
 
 if __name__ == '__main__':
