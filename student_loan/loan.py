@@ -5,10 +5,8 @@ import collections
 
 MonthlyPayment = collections.namedtuple('MonthlyPayment', 'date, amount')
 
-# Daily: $53893.79
-# Monthly: $53881.63
-# Yearly: $53750.00
-# Start Date 11/28/16
+# Total Payments: 101,704.29
+# Total Interest: 26,979.95
 
 
 def main():
@@ -39,32 +37,55 @@ def load_file(filename):
 
 
 def apply_payment(data):
-    principle = 50000
+    principle = 74724.34
+    total_interest = []
+    total_payments = []
     previous_date = datetime.date(2016, 10, 28)  # setting the start date based on current billing cycle
+    count = 1
 
     for payment in data:
         days = days_in_billing_cycle(previous_date, payment.date)
+        accrued_interest = daily_interest(principle, days)
+        principle -= payment.amount - accrued_interest
+        total_interest.append(accrued_interest)
+        total_payments.append(payment.amount)
+        print('{}, Payment: {}, Interest: {:.2f}, Principle: {:.2f}, Balance: ${:.2f}'.
+              format(payment.date, payment.amount, accrued_interest, payment.amount - accrued_interest, principle))
+
+        if principle <= payment.amount:
+            final_payment = principle
+            final_date = calculate_next_month(payment.date)
+
+            print('{}, Payment: {:.2f}, Interest: {:.2f}, Principle: {:.2f}, Balance: ${:.2f}'.
+                   format(final_date, final_payment, accrued_interest, final_payment - accrued_interest, principle - final_payment))
+
+            print()
+            print('Total Payments: ${:.2f}'.format(sum(total_payments)))
+            print('Total Interest Paid: ${:.2f}'.format(sum(total_interest)))
+            print(count)
+            break
+        count += 1
         previous_date = payment.date
 
-        principle = daily_interest(principle, days) - payment.amount
-        print('{}, Payment: {}, Balance: ${:.2f}'.format(payment.date, payment.amount, principle))
-        if principle < 0:
-            break
 
-
-def daily_interest(p, days):
-    # Using recursion to get compounded daily
+def daily_interest(principle, days):
+    total_interest = 0.0
     interest = .075 / 365
-    if days == 0:
-        return p
+    for k in range(days):
+        total_interest += principle * interest
 
-    p += (p * interest)
-
-    return daily_interest(p, days - 1)
+    return total_interest
 
 
 def days_in_billing_cycle(previous_month, current_month):
     return (current_month - previous_month).days
+
+
+def calculate_next_month(current_date):
+    if current_date.month == 12:
+        return datetime.date(current_date.year+1, 1, current_date.day)
+    else:
+        return datetime.date(current_date.year, current_date.month+1, current_date.day)
 
 
 if __name__ == '__main__':
