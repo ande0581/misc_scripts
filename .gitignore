@@ -90,3 +90,5 @@ ENV/
 /env/
 /.idea/
 /.idea/vcs.xml
+/student_loan/payments.csv
+/apple_refurb/send_email.py
